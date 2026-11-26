@@ -29,33 +29,25 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+def evaluate_model(
+    model: ElasticNet,
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    X_test: np.ndarray,
+    y_test: np.ndarray,
+) -> dict[str, float]:
+    """Compute standard regression evaluation metrics for train and test splits."""
+    train_preds = model.predict(X_train)
+    test_preds = model.predict(X_test)
 
-def validate_columns(df: pd.DataFrame, required_cols: list[str], dataset_name: str) -> None:
-    """Ensure all required feature and label columns exist in the DataFrame."""
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        raise ValueError(f"Missing columns in {dataset_name}: {missing}")
-    testLabels = test_pandas_data[label_col].values
-    testFeatures = test_pandas_data[feat_cols].values
+    return {
+        "train_rmse": float(np.sqrt(mean_squared_error(y_train, train_preds))),
+        "test_rmse": float(np.sqrt(mean_squared_error(y_test, test_preds))),
+        "test_mae": float(mean_absolute_error(y_test, test_preds)),
+        "train_r2": float(r2_score(y_train, train_preds)),
+        "test_r2": float(r2_score(y_test, test_preds)),
+    }
 
-    #We will use a linear Elastic Net model.
-    en = ElasticNet(alpha=alpha, l1_ratio=l1_ratio)
-
-    # Here we train the model.
-    en.fit(trainingFeatures, trainingLabels)
-
-    # Calculating the scores of the model.
-    test_rmse = mean_squared_error(testLabels, en.predict(testFeatures))**0.5
-    r2_score_training = en.score(trainingFeatures, trainingLabels)
-    r2_score_test = en.score(testFeatures, testLabels)
-    print("Test RMSE:", test_rmse)
-    print("Training set score:", r2_score_training)
-    print("Test set score:", r2_score_test)
-
-    #Logging the RMSE and r2 scores.
-    mlflow.log_metric("Test RMSE", test_rmse)
-    mlflow.log_metric("Train R2", r2_score_training)
-    mlflow.log_metric("Test R2", r2_score_test)
 
     #Saving the model as an artifact.
     sklearn.log_model(en, "model")
