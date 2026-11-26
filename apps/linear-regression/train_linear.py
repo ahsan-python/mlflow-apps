@@ -22,21 +22,19 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import ElasticNet
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-def train(training_pandas_data, test_pandas_data, label_col, 
-          feat_cols, alpha, l1_ratio, training_data_path, test_data_path):
+# Configure structured logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+)
+logger = logging.getLogger(__name__)
 
-    print("train:         " + training_data_path)
-    print("test:          " + test_data_path)
-    print("alpha:        ", alpha)
-    print("l1-ratio:     ", l1_ratio)
-    print("label-col:     " + label_col)
-    for col in feat_cols:
-        print("feat-cols:     " + col)
 
-    # Split data into training labels and testing labels.
-    trainingLabels = training_pandas_data[label_col].values
-    trainingFeatures = training_pandas_data[feat_cols].values
-
+def validate_columns(df: pd.DataFrame, required_cols: list[str], dataset_name: str) -> None:
+    """Ensure all required feature and label columns exist in the DataFrame."""
+    missing = [col for col in required_cols if col not in df.columns]
+    if missing:
+        raise ValueError(f"Missing columns in {dataset_name}: {missing}")
     testLabels = test_pandas_data[label_col].values
     testFeatures = test_pandas_data[feat_cols].values
 
