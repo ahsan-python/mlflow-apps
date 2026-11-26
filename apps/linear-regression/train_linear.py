@@ -15,6 +15,8 @@
 import logging 
 from typing import any
 
+import mlflow
+import mlflow.sklearn
 
 def train(training_pandas_data, test_pandas_data, label_col, 
           feat_cols, alpha, l1_ratio, training_data_path, test_data_path):
