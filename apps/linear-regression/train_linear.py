@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sklearn.metrics import mean_squared_error
-from sklearn.linear_model import ElasticNet
-import mlflow
-from mlflow import sklearn
+import logging 
+from typing import any
 
 
 def train(training_pandas_data, test_pandas_data, label_col, 
